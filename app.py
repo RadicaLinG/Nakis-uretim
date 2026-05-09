@@ -2,7 +2,10 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 from datetime import datetime
-import plotly.express as px # Grafikler için ekledik
+import plotly.express as px
+
+# --- SAYFA AYARLARI (ARTIK EN ÜSTTE) ---
+st.set_page_config(page_title="Nakış Takip Pro", page_layout="wide")
 
 # --- VERİTABANI AYARLARI ---
 def veri_hazirla():
@@ -16,9 +19,6 @@ def veri_hazirla():
     conn.close()
 
 veri_hazirla()
-
-# --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Nakış Takip Pro", page_layout="wide")
 
 # --- NAVİGASYON ---
 sayfa = st.sidebar.selectbox("Bölüm Seçin", ["Veri Girişi (Personel)", "Yönetim Paneli (Admin)"])
@@ -59,31 +59,26 @@ elif sayfa == "Yönetim Paneli (Admin)":
     
     sifre = st.text_input("Yönetici Şifresi", type="password")
     
-    if sifre == "1234": # Burayı kendine göre değiştirebilirsin
+    if sifre == "1234":
         st.sidebar.success("Erişim Onaylandı")
         
-        # Verileri Çek
         conn = sqlite3.connect('nakis_uretim.db')
         df = pd.read_sql_query("SELECT * FROM uretim", conn)
         conn.close()
 
         if not df.empty:
-            # Özet Metrikler
             c1, c2, c3 = st.columns(3)
             c1.metric("Toplam Vuruş", f"{df['vurus'].sum():,}")
             c2.metric("Toplam Kasnak", df['kasnak'].sum())
             c3.metric("Kayıt Sayısı", len(df))
 
-            # Grafikler
             st.subheader("📈 Makine Bazlı Üretim Performansı")
             fig = px.bar(df, x='makine', y='vurus', color='personel', title="Makine ve Personel Dağılımı")
             st.plotly_chart(fig, use_container_width=True)
 
-            # Tabloyu Göster
             st.subheader("📋 Tüm Kayıtlar")
             st.dataframe(df, use_container_width=True)
 
-            # Excel Aktarımı
             csv = df.to_csv(index=False).encode('utf-8')
             st.download_button("Excel/CSV Olarak İndir", csv, "uretim_raporu.csv", "text/csv")
         else:
