@@ -1,11 +1,14 @@
 import streamlit as st
+
+# --- SAYFA AYARLARI (MUTLAKA EN ÜSTTE VE IMPORT'UN HEMEN ALTINDA OLMALI) ---
+if 'setup_done' not in st.session_state:
+    st.set_page_config(page_title="Nakış Takip Pro", page_layout="wide")
+    st.session_state['setup_done'] = True
+
 import pandas as pd
 import sqlite3
 from datetime import datetime
 import plotly.express as px
-
-# --- SAYFA AYARLARI (ARTIK EN ÜSTTE) ---
-st.set_page_config(page_title="Nakış Takip Pro", page_layout="wide")
 
 # --- VERİTABANI AYARLARI ---
 def veri_hazirla():
